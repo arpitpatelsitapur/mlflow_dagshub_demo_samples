@@ -135,7 +135,7 @@ Example Flow:
 
 ## Samples of my Experiments
 
-![Mlflow](mlflow_exp_tracking.png)
+![Mlflow](mlflow_exp_tracking.webp)
 ![Dagshub](dagshub_exp_tracking.png)
 
 ## Summary
