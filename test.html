@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI/ML Landscape: Noida & Greater Noida</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices:
+        - Report Text (Exec Summary, Intro, Key Findings, Conclusions): Goal=Inform, Method=HTML text blocks, Interaction=None. Justification=Direct presentation of qualitative report content.
+        - Key Stats (Total companies, by location, by type): Goal=Inform/Summarize, Method=Dynamic HTML text, Interaction=None. Justification=Quick overview of dataset size and key distributions. Library=JS.
+        - Company Data Table: Goal=Organize/Compare/Inform, Method=Interactive HTML table, Interaction=Filters (location, field, type, nature), Search (name), Sort, Detail view on click. Justification=Allows deep exploration of the primary dataset. Library=JS.
+        - Charts (Distribution by Location, Type, Main Field, Nationality, Nature): Goal=Compare/Show Distribution, Method=Bar/Pie charts, Interaction=Tooltips. Justification=Visual summary of key data dimensions. Library=Chart.js.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-warm-neutral-100 { background-color: #f5f5f0; } /* Light beige/cream */
+        .bg-warm-neutral-200 { background-color: #e6e6e0; } /* Slightly darker beige/cream */
+        .text-warm-neutral-800 { color: #4d4d4a; } /* Dark gray for text */
+        .text-warm-neutral-600 { color: #73736f; } /* Medium gray for secondary text */
+        .accent-color { color: #4a90e2; } /* Muted blue */
+        .accent-bg { background-color: #4a90e2; }
+        .accent-border { border-color: #4a90e2; }
+        .nav-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.3s, color 0.3s;
+            cursor: pointer;
+        }
+        .nav-button.active {
+            background-color: #4a90e2; /* Muted blue */
+            color: white;
+        }
+        .nav-button:not(.active):hover {
+            background-color: #e6e6e0; /* Slightly darker beige/cream */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Default max-width */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height */
+            max-height: 400px; /* Max height */
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .chart-container {
+                height: 350px;
+            }
+        }
+        /* Ensure table headers are sticky for better scrolling experience on smaller tables */
+        .sticky-header th {
+            position: sticky;
+            top: 0;
+            background-color: #e6e6e0; /* bg-warm-neutral-200 */
+            z-index: 10;
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* 10% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 700px;
+            border-radius: 0.5rem;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-warm-neutral-100 text-warm-neutral-800">
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold accent-color">The Evolving AI/ML Landscape</h1>
+            <p class="text-xl text-warm-neutral-600">A Comprehensive Analysis of Companies in Noida and Greater Noida</p>
+        </header>
+
+        <nav class="flex justify-center space-x-2 md:space-x-4 mb-8">
+            <button id="nav-overview" class="nav-button active" onclick="showSection('overview')">Overview</button>
+            <button id="nav-explorer" class="nav-button" onclick="showSection('explorer')">Company Explorer</button>
+            <button id="nav-insights" class="nav-button" onclick="showSection('insights')">Insights</button>
+        </nav>
+
+        <main>
+            <section id="overview-section" class="space-y-6">
+                <div>
+                    <h2 class="text-2xl font-semibold mb-3 accent-color">Executive Summary</h2>
+                    <p class="text-warm-neutral-600 leading-relaxed">
+                        Noida and Greater Noida are rapidly emerging as pivotal hubs for Artificial Intelligence (AI), Machine Learning (ML), Data Science (DS), Natural Language Processing (NLP), Generative AI, and Agentic AI in India. The region hosts a diverse ecosystem, ranging from global technology giants and established Indian IT service providers to a dynamic cohort of innovative startups and dedicated research and development (R&D) centers. This interactive application allows exploration of companies operating in these domains, detailing their profiles and highlighting key trends in this burgeoning tech landscape.
+                    </p>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-semibold mb-3 accent-color">Introduction</h2>
+                    <p class="text-warm-neutral-600 leading-relaxed">
+                        The National Capital Region (NCR) of Delhi, particularly Noida and Greater Noida, has solidified its position as a prominent technology and IT cluster. Supported by robust infrastructure, a strong talent pipeline, and government initiatives, the region attracts diverse technology firms. This application systematically presents companies specializing in AI and related fields, compiled from various reliable sources, offering insights into the vibrant AI/ML ecosystem.
+                    </p>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-semibold mb-3 accent-color">Key Statistics</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-warm-neutral-800">Total Companies Listed</h3>
+                            <p id="stat-total-companies" class="text-3xl font-bold accent-color">0</p>
+                        </div>
+                        <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-warm-neutral-800">Companies in Noida</h3>
+                            <p id="stat-noida-companies" class="text-3xl font-bold accent-color">0</p>
+                        </div>
+                        <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-warm-neutral-800">Companies in Greater Noida</h3>
+                            <p id="stat-gnoida-companies" class="text-3xl font-bold accent-color">0</p>
+                        </div>
+                         <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-warm-neutral-800">Startups</h3>
+                            <p id="stat-startups" class="text-3xl font-bold accent-color">0</p>
+                        </div>
+                        <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                            <h3 class="text-lg font-medium text-warm-neutral-800">Established Companies</h3>
+                            <p id="stat-established" class="text-3xl font-bold accent-color">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="explorer-section" class="hidden space-y-6">
+                <p class="text-warm-neutral-600 leading-relaxed">
+                    Dive into the details of companies operating in the AI/ML space in Noida and Greater Noida. Use the filters and search bar to narrow down your search, and click on a company name for more information. The table is sortable by clicking on column headers.
+                </p>
+                <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <label for="filter-location" class="block text-sm font-medium text-warm-neutral-800">Location</label>
+                            <select id="filter-location" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="All">All Locations</option>
+                                <option value="Noida">Noida</option>
+                                <option value="Greater Noida">Greater Noida</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-field" class="block text-sm font-medium text-warm-neutral-800">Main Working Field</label>
+                            <select id="filter-field" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="All">All Fields</option>
+                                <option value="AI">Artificial Intelligence (AI)</option>
+                                <option value="ML">Machine Learning (ML)</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="NLP">Natural Language Processing (NLP)</option>
+                                <option value="Generative AI">Generative AI</option>
+                                <option value="Agentic AI">Agentic AI</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-type" class="block text-sm font-medium text-warm-neutral-800">Company Type</label>
+                            <select id="filter-type" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="All">All Types</option>
+                                <option value="Startup">Startup</option>
+                                <option value="Established">Established</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-nature" class="block text-sm font-medium text-warm-neutral-800">Operational Nature</label>
+                            <select id="filter-nature" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="All">All Natures</option>
+                                <option value="IT Service Company">IT Service Company</option>
+                                <option value="R&D Center">R&D Center</option>
+                                <option value="Product Company">Product Company</option>
+                                <option value="Consulting">Consulting</option>
+                                 <option value="Service Company (Healthcare)">Service Company (Healthcare)</option>
+                                <option value="IT Service Company / R&D Center">IT Service / R&D</option>
+                                <option value="R&D Center / Startup Incubator">R&D / Incubator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="search-company" class="block text-sm font-medium text-warm-neutral-800">Search by Company Name</label>
+                        <input type="text" id="search-company" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter company name...">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto bg-white shadow rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-warm-neutral-200 sticky-header">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-warm-neutral-800 uppercase tracking-wider cursor-pointer" onclick="sortTable(0)">Company Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-warm-neutral-800 uppercase tracking-wider cursor-pointer" onclick="sortTable(1)">Location</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-warm-neutral-800 uppercase tracking-wider cursor-pointer" onclick="sortTable(2)">Main Field</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-warm-neutral-800 uppercase tracking-wider cursor-pointer" onclick="sortTable(3)">Type</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-warm-neutral-800 uppercase tracking-wider" >Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="company-table-body" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                    </table>
+                </div>
+                 <p id="no-results" class="text-center text-warm-neutral-600 hidden">No companies match the current filters.</p>
+            </section>
+
+            <section id="insights-section" class="hidden space-y-8">
+                 <p class="text-warm-neutral-600 leading-relaxed">
+                    This section provides an analysis of the AI/ML ecosystem in Noida and Greater Noida, based on the collected company data. Explore the charts to understand distributions and trends, and read the key findings and conclusions from the report.
+                </p>
+                <div>
+                    <h2 class="text-2xl font-semibold mb-3 accent-color">Key Findings and Market Trends</h2>
+                    <p class="text-warm-neutral-600 leading-relaxed">
+                        The research indicates a pervasive presence of companies across all specified AI/ML domains, with a notable trend of organizations offering integrated services. AI and Machine Learning often serve as foundational capabilities, underpinning specialized fields like Generative AI. The ecosystem features large IT conglomerates (TCS, HCLTech, Infosys, etc.) and a dynamic segment of startups and specialized AI/ML firms. Dedicated R&D centers from global leaders (e.g., Microsoft) and academic institutions (e.g., Amity University) also contribute. A balance of domestic and international entities highlights the region's appeal for technological investment and talent. This dual growth addresses both large-scale enterprise AI adoption and pioneering new AI frontiers.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2 text-center text-warm-neutral-800">Companies by Location</h3>
+                        <div class="chart-container mx-auto h-[300px] md:h-[350px]">
+                            <canvas id="locationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2 text-center text-warm-neutral-800">Company Type Distribution</h3>
+                         <div class="chart-container mx-auto h-[300px] md:h-[350px]">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2 text-center text-warm-neutral-800">Companies by Main Working Field</h3>
+                         <div class="chart-container mx-auto h-[300px] md:h-[350px]">
+                            <canvas id="fieldChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2 text-center text-warm-neutral-800">Company Nationality</h3>
+                         <div class="chart-container mx-auto h-[300px] md:h-[350px]">
+                            <canvas id="nationalityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-warm-neutral-200 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold mb-2 text-center text-warm-neutral-800">Operational Nature</h3>
+                        <div class="chart-container mx-auto h-[300px] md:h-[350px]">
+                            <canvas id="natureChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                 <div>
+                    <h2 class="text-2xl font-semibold mb-3 accent-color">Conclusions</h2>
+                    <p class="text-warm-neutral-600 leading-relaxed">
+                        Noida and Greater Noida exhibit a thriving, multifaceted technological ecosystem for AI/ML. The strategic location, supportive infrastructure, and large talent pool foster an environment where established corporations and agile startups coexist and innovate. Large IT service companies integrate AI/ML into broader portfolios, while specialized startups and R&D centers drive focused innovation. This dual strategy positions the region as a robust and adaptable center for AI, capable of meeting diverse market demands. The blend of Indian firms and international players solidifies its global standing. In summary, Noida and Greater Noida are evolving into strategic hubs for AI/ML development, research, and deployment, poised for continued growth and significant contributions to the global AI economy.
+                    </p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="companyModal" class="modal">
+        <div class="modal-content text-warm-neutral-800">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2 id="modal-company-name" class="text-2xl font-bold mb-4 accent-color"></h2>
+            <div id="modal-company-details" class="space-y-2 text-sm"></div>
+        </div>
+    </div>
+
+    <script>
+        const companyData = [
+            { "CompanyName": "Sparx IT Solutions", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI, NLP, Web & Mobile App Solutions", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "ISHIR", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "AppVin Technologies Pvt Ltd", "Address": "Noida, India (address not detailed)", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Software Development", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Agile Tech Solution Pvt Ltd", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, IT consulting, outsourcing", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "MoonDive LLC", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "TAKSH IT SOLUTIONS PVT LTD", "Address": "Noida, India (address not detailed)", "Sector": "IT and Digital Innovation", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, IT, digital innovation, software development", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Softkingo", "Address": "H61, Block H, Sector 63, Noida, UP - 201301", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Software development, UI/UX, Mobile app development", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Codearies", "Address": "Noida, India (address not detailed)", "Sector": "IT Software", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Mobile App, Website, Software Development, IT consultation, UI/UX", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "HCLTech", "Address": "Technology Hub, SEZ, Plot No. 3A, Sector 126, Noida – 201304", "Sector": "Technology/IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Agentic AI, Generative AI, NLP, Cloud, Digital, Engineering, Data Analytics", "Type": "Established", "Nature": "IT Service Company / R&D Center", "OfficeType": "Headquarter" },
+            { "CompanyName": "Genpact", "Address": "D-4, Sector 59, Noida 201307; Unitech SEZ, Candor InfoSpace, Tower 8, Plot No. 20 &21, Sector – 135, Noida - 201301; Stellar - M/S Osprey E commerce pvt ltd, Plot 5&6, Sector-135, Dist Gautam Budh Nagar, Noida; Assotech, Tower 5, Plot 22, Sector 135, Noida 201305", "Sector": "Professional Services/IT Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI, Agentic AI, Data & Analytics", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Microsoft", "Address": "Sector 145, Noida (new campus); 5th Floor, Wing B, Express Trade Tower 1, Plot No 15-16, Film City, Sector 16A, Noida - 201301", "Sector": "Technology", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI, R&D, Cloud Computing, Cybersecurity", "Type": "Established", "Nature": "R&D Center", "OfficeType": "Branch / R&D Center" },
+            { "CompanyName": "TCS (Tata Consultancy Services)", "Address": "Lucerna Tower, Plot A2B, Sector 125, Noida, Uttar Pradesh 201303; Plot No 20 & 21, 4th to 7th Floor, Building B2, Noida Sector 135, Noida - 201304; 44-45, Block-A, Sector-62, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Computer Software Development, IT Services", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Accenture", "Address": "Green Boulevard, Plot no B9A, 2d floor, Tower B & C, Sector 62, Noida – 201301; Unitech Infospace SEZ, Plot No. 20 & 21, Building 3, Ground & First floor, Sector-135, Noida – 201301", "Sector": "Consulting/IT Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI, Digital Marketing, Consulting", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Wipro", "Address": "Plot No 6, Lower Ground to 5th Floor, Tech Boulevard, Tower A, Noida Greater Noida Expressway, Sector 127-201303; Knowledge Park, Greater Noida", "Sector": "IT Services/Consulting", "SpecificLocation": "Noida / Greater Noida", "Nationality": "Indian", "MainWorkingField": "AI, Cloud Services, Cybersecurity, Data Analytics, Engineering", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Infosys", "Address": "Floor 9 to12, Tower B, Ace Capitol, Plot No 37A, Sector 132, Greater Noida Expressway, Noida – 201304; Floor 15 to 17, Tower B, Alphathum Bhutani, Sector 90, Noida – 201305; Block A, Sector 85, Noida - 201305", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI-powered capabilities, Data Analytics, IT Consulting, System Integration", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "EY", "Address": "4th & 5th Floor, Plot No 2B, Tower 2, Sector 126, Gautam Budh Nagar, U.P. Noida 201304", "Sector": "Consulting/Professional Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI-Powered Innovation & Transformation, AI Insights", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Capgemini", "Address": "Plot no 134 & 135, 139, 140 and 142 E & F NOIDA Special Economic Zone Phase II Noida, 201305", "Sector": "Consulting/IT Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "Data and Artificial Intelligence, Generative AI, Agentic AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Adobe", "Address": "Plot No. 05, Block A, Sector-132, Noida – 201304; I-1A, Sector 25A, Noida, U.P. 201301", "Sector": "Software/Technology", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI/ML (implied)", "Type": "Established", "Nature": "R&D Center / IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "SEW", "Address": "Noida, Uttar Pradesh (Global Energy Tech AI Innovation Hub)", "Sector": "Energy & Utilities Technology", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI, ML, IoT Analytics, Energy & Water AI Cloud Platform", "Type": "Established", "Nature": "R&D Center", "OfficeType": "Headquarter / R&D Hub" },
+            { "CompanyName": "Ksolves", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI/ML, Big Data, Salesforce, Odoo, Magento, Java Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "InnovationM", "Address": "Tower A, 3rd Floor, Tapasya Corp heights, subarea, Sector 126, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI/ML, LLM Application Development, Conversational AI Chatbot, Custom ChatGPT Development, AI Assistants on Own Data/RAG, NLU, Visual Search, Image Recognition, TTS", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Xcelore", "Address": "Office No. 14 & 15, 6th Floor, Tower A, Stellar IT Park, C-25, Sector 62, NOIDA, Uttar Pradesh – 201309", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, LLMs, Machine Learning, AI Agent, Computer Vision, Advanced Analytics, Custom Software Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "ABYM Technology Private Limited", "Address": "C-56/11, Sector-62, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Machine Learning, NLP, Computer Vision, Chatbots, Predictive Analytics", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Techmates Technologies", "Address": "Level 5, Tower C, 3C Green Boulevard, Sector 24, Noida - 201301", "Sector": "IT Solutions", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Big Data Solution", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Fusionpact Technologies Private Limited", "Address": "12th, 1202, Tower C 6 Cleo County, Noida Sector 121, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Royal1 Conn Comm Private Limited", "Address": "1st Floor, C-4, Office No.1, Sector-63, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "IVR Artificial Intelligence Services", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Globalgig Resources Private Limited", "Address": "H - 140, BSI Business Park, Sector - 63, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Tephratec Solutions Private Limited", "Address": "C-108, Sector-2, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Game Development, Application Development, Digital Marketing", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Chetu", "Address": "H-6, Sector 63, Noida - 201301; A-8, Sector 63, Noida - 201301; A-206, Sector-63, Noida - 201301", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI/ML, Data Science", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "TechGropse Pvt. Ltd.", "Address": "G-02, 127, C Block, Sector 63, Noida, Uttar Pradesh 201301", "Sector": "Web & Mobile App Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI/ML Development, Mobile App Development, Web Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Appsinvo Pvt. Ltd.", "Address": "B-25, 3rd Floor, B Block, Sector 2, Noida, Uttar Pradesh 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI application development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Infoicon Technologies Pvt. Ltd.", "Address": "E-32, Sector 8, Noida (U.P.), India - 201301 (Head Office); 1132, 11th Floor, I-Thum Tower B, Sector-62, Noida-201301 (Corporate Office)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI/ML, Digital Transformation", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter/Corporate Office" },
+            { "CompanyName": "Ultrashield Technology", "Address": "710 Tower A, I-thum Sector 62, Noida, UP 201301", "Sector": "Web & Mobile App Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI-ML development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Mobcoder", "Address": "Noida, India (address not detailed)", "Sector": "Mobile Solutions", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI-Powered Innovation, Mobile Technologies, AI/ML", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Chawtech Solutions", "Address": "Noida, India (address not detailed)", "Sector": "IT Solutions", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, IT Solutions", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Plaxonic Technologies", "Address": "Noida, India (address not detailed)", "Sector": "Technology", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Automation, Digital Transformation", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Quantum IT Innovation", "Address": "Noida, India (address not detailed)", "Sector": "IT Solutions", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Big Data, RPA, Mobile App Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Etelligens Technologies", "Address": "Noida, India (address not detailed)", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Custom software, Google app engine development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Minova Technology", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, ML, NLP, UX/UI Design, Cloud Consulting", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "INDIBUS Softwares Solutions Pvt Ltd", "Address": "Noida, India (address not detailed)", "Sector": "Software Solutions", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, NLP, Custom Software Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Webuters Technologies Pvt. Ltd.", "Address": "Platina Heights, C-24, CO-DESQ, Unit - 27, Sector 62, Noida, Uttar Pradesh 201301", "Sector": "Digital Transformation/IT Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, NLP, CRM Consulting, Digital Transformation", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Tronologic India", "Address": "Noida, India (address not detailed)", "Sector": "Web & Mobile App Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, Web Development, Web Design", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Cinntra Infotech Solutions Pvt. Ltd.", "Address": "Noida, India (address not detailed)", "Sector": "IT Solutions", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, NLP, CRM, ERP, e-commerce, business automation", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Macgence", "Address": "7th Floor, Platina Heights C-24, Sector 62 Noida Uttar Pradesh 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, NLP, IT Managed, IT Consulting", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "GreenCall Technology", "Address": "Noida, India (address not detailed)", "Sector": "IT Solutions", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, Web Development, SEO, IT solutions, managed IT services, custom software development, BPO", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Ad Worldwidetech Co.", "Address": "Greater Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Greater Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Nogatech It Solutions INDIA Pvt. Ltd.", "Address": "Noida, India (address not detailed)", "Sector": "IT Solutions", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, ML, Web design & development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Exl Service", "Address": "A-18 Noida Sector 59, Noida", "Sector": "Financial Services/IT Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI, Financial Services", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Devstringx Technologies", "Address": "Magnus Tower, Plot No 6, 3rd & 4th Floor, Sector 73, Noida, Uttar Pradesh 201307", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Quality Engineering Services, Mobile Application Developers", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Goldstein Research Pvt Ltd", "Address": "Noida, India (address not detailed)", "Sector": "Research/Consulting", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company (Consulting)", "OfficeType": "Headquarter" },
+            { "CompanyName": "Algo8 Ai", "Address": "G-46, 1st Floor, Sector-3, Noida-201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "i-Softinc", "Address": "Greater Noida, India (address not detailed)", "Sector": "App Development", "SpecificLocation": "Greater Noida", "Nationality": "Indian", "MainWorkingField": "AI App Development, ML, NLP, Computer Vision, Predictive Analytics", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "TALENTNAKSHA AI TECH PRIVATE LIMITED", "Address": "UNIT NO-1108, TOWER-1, ASSOTECH BUSINESS CRESTERA, SECTOR-135, NOIDA, Uttar Pradesh, India - 201301", "Sector": "Technology", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "GINNIE ARTIFICIAL INTELLIGENCE PRIVATE LIMITED", "Address": "1011, 10TH FLOOR, TOWER - A, I THUM PLOT 4A BLOCK - A, SECTOR - 62 NOIDA, GAUTAM BUDHHA NAGAR, Uttar Pradesh, India - 201301", "Sector": "Technology", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Enorvision AIML Limited", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI/ML", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Progressive AI Data Inc.", "Address": "Noida, India (address not detailed)", "Sector": "IT Consultancy", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, Data & Analytics, Business & Technology Strategy", "Type": "Startup", "Nature": "IT Service Company (Consultancy)", "OfficeType": "Headquarter" },
+            { "CompanyName": "Jellyfish Technologies", "Address": "Noida, India (address not detailed)", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI Development, Data & Analytics, Software Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Aeologic Technologies", "Address": "Logix Cyber Park Plot no. C-28 & 29, Tower-C 3rd Floor, C Block, Phase 2, Industrial Area, Sector 62, Noida, Uttar Pradesh 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Rezo.ai", "Address": "Tower A, Plot No. 1 and 2, Smart Works Co Working Space, Sector - 125, Noida, Gautam Buddha Nagar, Uttar Pradesh, 201303", "Sector": "AI Solutions", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Lacleo Digital", "Address": "Amrapali Eden Park, F 27 B -1 Near HDFC bank, Fatehpur, F Block Sector 50 Noida, Uttar Pradesh 201301", "Sector": "Digital Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI (implied)", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Anolytics", "Address": "A-83, Sector-2, Noida, Uttar Pradesh 201301", "Sector": "Data Annotation/IT Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "AI, NLP, data, image, text, and video annotation service for computer vision and machine learning", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Taskone Technologies LLC FZ", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "NLP, Enterprise App Modernization, IT Staff Augmentation, project management", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Vegavid Technology", "Address": "Noida, India (address not detailed)", "Sector": "Technology", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, Blockchain, Metaverse, NFT Development, Crypto Marketing, AI", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "CETPA Infotech Pvt Ltd", "Address": "Noida, India (address not detailed)", "Sector": "Technical Training/Consulting", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, Web Design, Custom Software Development, technical training and consulting services", "Type": "Established", "Nature": "IT Service Company (Training/Consulting)", "OfficeType": "Headquarter" },
+            { "CompanyName": "Automation Agency India", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, AI Automation of Sales, Marketing, Customer Support, Operations", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Aeroqube", "Address": "Noida, India (address not detailed)", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, Custom Software Development, Web Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Amity Centre for Artificial Intelligence (ACAI)", "Address": "Amity University Campus, Sector-125, Noida", "Sector": "Education/Research", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI, ML, Deep Learning, NLP, Generative AI, Transformers, LLMs, Multimodal AI (Research & Education)", "Type": "Established", "Nature": "R&D Center", "OfficeType": "Headquarter" },
+            { "CompanyName": "NIET Greater Noida (Department of Artificial Intelligence & Machine Learning (AIML))", "Address": "Greater Noida, India (address not detailed)", "Sector": "Education/Research", "SpecificLocation": "Greater Noida", "Nationality": "Indian", "MainWorkingField": "AI, ML, Deep Learning, Natural Language Processing, Computer Vision, Reinforcement Learning, Data Mining (Research & Education)", "Type": "Established", "Nature": "R&D Center", "OfficeType": "Headquarter" },
+            { "CompanyName": "AIIDE CoE Noida (Center of Excellence)", "Address": "1st Floor, UPLC, Navchetna Kendra, Noida (implied)", "Sector": "Government/Incubation/Research", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI/ML, ICT, IOT, Cyber, Augmented Reality (Startup Incubation and Acceleration)", "Type": "Established", "Nature": "R&D Center / Startup Incubator", "OfficeType": "Headquarter" },
+            { "CompanyName": "Deuglo Infosystem Pvt. Ltd.", "Address": "113, Udyog Vihar Extension, Ecotech-II, Surajpur, Greater Noida, UP 201306", "Sector": "IT Services", "SpecificLocation": "Greater Noida", "Nationality": "Indian", "MainWorkingField": "Data Science, Data Consulting, Data Engineering, Data Analysis, Machine Learning, AI, Data Visualization, NLP", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Spiral Mantra Private Limited", "Address": "302, D-247/4A Procapitus Business Park, Sector 63, Noida, Uttar Pradesh 201301", "Sector": "Technology Solutions", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "Data Engineering, Advanced Analytics, AI/ML, Cloud Consulting, App Development, NLP", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "OnGraph Technologies Corporation", "Address": "SDF L-1, NSEZ, Sector 81, Block L, Phase-2, Noida, Uttar Pradesh-201305", "Sector": "Web & Mobile App Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI/ML Solutions, Web and Mobile App Development, NLP, Chatbot solution", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Binmile Technologies", "Address": "EMIT Building, D-42, Sector 59, Noida, Uttar Pradesh 201301", "Sector": "Digital Engineering", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "NLP, Digital Engineering, Software solutions", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Nickelfox", "Address": "Noida, India (address not detailed)", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, IT Staff Augmentation, Mobile App Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Persistent Systems", "Address": "Noida, India (address not detailed)", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Other", "MainWorkingField": "Data and analytics, cloud and infrastructure, data and product engineering, intelligent automation, client experience transformation, NLP", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Branch" },
+            { "CompanyName": "Pyzen Technologies", "Address": "Noida, India (address not detailed)", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, Custom Software Development, Web Development, mobile apps, full-stack web, cloud, Ai & ML", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "CodeAegis Pvt Ltd", "Address": "Noida, India (address not detailed)", "Sector": "Software Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "NLP, Web Design, UX/UI Design, innovative digital solutions", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "World Learn Easy", "Address": "Panchsheel Hynish, 2003, Tower-8, Sector 1, Greater Noida, Uttar Pradesh, Surajpur Site 4, Greater Noida - 201310", "Sector": "Education/Training", "SpecificLocation": "Greater Noida", "Nationality": "Indian", "MainWorkingField": "Data Science, Data Analysis & Visualization", "Type": "Established", "Nature": "IT Service Company (Training)", "OfficeType": "Headquarter" },
+            { "CompanyName": "Uncodemy.com", "Address": "B 14-15, Udhyog Marg, Sector 1, Noida Sector 1, Noida - 201301", "Sector": "Education/Training", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Data Science (implied)", "Type": "Established", "Nature": "IT Service Company (Training)", "OfficeType": "Headquarter" },
+            { "CompanyName": "Innolabz Ventures Pvt Ltd", "Address": "C-108, Sector-2, Noida Sector 2, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Data Science (implied)", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Data2play", "Address": "Shramik Kunj, Sector 62 Road, Noida Sector 66, Noida - 201307", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Data Science (implied)", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Skysight AI Private Limited", "Address": "7TH FLOOR TOWER 1 UNIT NO 1701 EXPRESS TRADE TOWER 2 B 36 SECTOR 132 , NOIDA, Uttar Pradesh, India - 201301", "Sector": "Technology", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "AI", "Type": "Startup", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Appinventiv", "Address": "B-25, Sector 58, Noida- 201301, Delhi - NCR, India", "Sector": "Mobile App Development", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Generative AI, Custom Generative AI Model Development, Generative AI for Content Creation, Personalized Recommendation Systems", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Quokka Labs LLP", "Address": "Unit no. 618 - 621, 6th Floor, Tower - 4, Assotech Business Cresterra, Sector 135, Noida, Uttar Pradesh 201305", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Generative AI, AI/ML", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Infiniticube Services Private Limited", "Address": "D9, Ground Floor, D Block, Sector 3, Noida - 201301", "Sector": "IT Services", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Generative AI Development Services, AI Development", "Type": "Established", "Nature": "IT Service Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "One97 Communications (Paytm)", "Address": "One Skymark, Floor No. 6th to 22nd, Tower-D, Plot No. H-10B, Sector-98, Noida-201304", "Sector": "Mobile Payments/Fintech", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Mobile payments, digital goods and services (implied AI/ML for recommendation/fraud detection)", "Type": "Established", "Nature": "IT Service Company / Product Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Classplus", "Address": "Noida, India (address not detailed)", "Sector": "Edtech / Software & Data", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Mobile first SaaS platform (implied AI/ML for streamlining video distribution, payments, assessments)", "Type": "Startup", "Nature": "Product Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "RailYatri", "Address": "Noida, India (address not detailed)", "Sector": "Software & Data / Travel Tech", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Information on trains, taxi services, food vendors (implied AI/ML for recommendations, logistics)", "Type": "Startup", "Nature": "Product Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Redcliffe Labs", "Address": "Noida, India (address not detailed)", "Sector": "Healthcare/Diagnostics", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Diagnostics (implied AI/ML for data analysis in labs)", "Type": "Startup", "Nature": "Service Company (Healthcare)", "OfficeType": "Branch" },
+            { "CompanyName": "Pine Labs", "Address": "Noida, India (address not detailed)", "Sector": "Fintech", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Merchant platform, technology and financial solutions (implied AI/ML for revenue increase, cost reduction)", "Type": "Startup", "Nature": "Product Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Keka HR", "Address": "Noida, India (address not detailed)", "Sector": "Software & Data > Enterprise Technology", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "HR Software (implied AI/ML for enterprise technology)", "Type": "Startup", "Nature": "Product Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "BYJU'S", "Address": "A-56, SECOND FLOOR, NEAR NODDY PLAY SCHOOL, SECTOR – 50, NOIDA; B-10, Bajaj Bhavan, 2nd floor, SECTOR-3, NOIDA- 201301", "Sector": "Edtech", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Edtech (implied AI/ML for personalized learning)", "Type": "Established", "Nature": "Product Company", "OfficeType": "Corporate Office" },
+            { "CompanyName": "SproutsAI", "Address": "Noida, India (address not detailed)", "Sector": "AI", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Conversational AI models for office automation", "Type": "Startup", "Nature": "Product Company", "OfficeType": "Headquarter" },
+            { "CompanyName": "Fractal Analytics", "Address": "Noida, India (address not detailed)", "Sector": "Analytics", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Analytical solutions, AI", "Type": "Established", "Nature": "IT Service Company / Consulting", "OfficeType": "Branch" },
+            { "CompanyName": "Probey Services", "Address": "Noida, India (address not detailed)", "Sector": "Technology and Digital Marketing", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Data Consulting, Website Design & Development, Software Development, Mobile App Development, Digital Marketing", "Type": "Established", "Nature": "IT Service Company (Consulting)", "OfficeType": "Headquarter" },
+            { "CompanyName": "Ascent BPO Services Pvt. Ltd.", "Address": "Noida, India (address not detailed)", "Sector": "Business Process Outsourcing (BPO)", "SpecificLocation": "Noida", "Nationality": "Indian", "MainWorkingField": "Data Consulting, Call Center Solutions, Data Entry Services, Customer Service Support", "Type": "Established", "Nature": "IT Service Company (BPO/Consulting)", "OfficeType": "Headquarter" }
+        ];
+
+        let currentSection = 'overview';
+        let sortColumn = -1;
+        let sortAsc = true;
+        let charts = {}; // To store chart instances
+
+        const sections = ['overview', 'explorer', 'insights'];
+        const navButtons = {
+            'overview': document.getElementById('nav-overview'),
+            'explorer': document.getElementById('nav-explorer'),
+            'insights': document.getElementById('nav-insights')
+        };
+
+        function showSection(sectionId) {
+            currentSection = sectionId;
+            sections.forEach(id => {
+                document.getElementById(`${id}-section`).classList.add('hidden');
+                navButtons[id].classList.remove('active');
+            });
+            document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+            navButtons[sectionId].classList.add('active');
+
+            if (sectionId === 'insights') {
+                renderCharts();
+            }
+        }
+
+        function populateTable(filteredData) {
+            const tableBody = document.getElementById('company-table-body');
+            const noResultsP = document.getElementById('no-results');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (filteredData.length === 0) {
+                noResultsP.classList.remove('hidden');
+                return;
+            }
+            noResultsP.classList.add('hidden');
+
+            filteredData.forEach((company, index) => {
+                const row = tableBody.insertRow();
+                row.className = index % 2 === 0 ? 'bg-white' : 'bg-warm-neutral-100';
+                
+                const cellName = row.insertCell();
+                cellName.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900';
+                cellName.textContent = company.CompanyName;
+
+                const cellLocation = row.insertCell();
+                cellLocation.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+                cellLocation.textContent = company.SpecificLocation.includes('Noida / Greater Noida') ? 'Noida & G.Noida' : company.SpecificLocation;
+
+
+                const cellField = row.insertCell();
+                cellField.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+                cellField.textContent = company.MainWorkingField.split(',')[0].trim(); // Show first field for brevity
+
+                const cellType = row.insertCell();
+                cellType.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+                cellType.textContent = company.Type;
+
+                const cellDetails = row.insertCell();
+                cellDetails.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+                const detailButton = document.createElement('button');
+                detailButton.textContent = 'View';
+                detailButton.className = 'text-indigo-600 hover:text-indigo-900 underline';
+                detailButton.onclick = () => showCompanyDetails(company);
+                cellDetails.appendChild(detailButton);
+            });
+        }
+        
+        function showCompanyDetails(company) {
+            document.getElementById('modal-company-name').textContent = company.CompanyName;
+            const detailsContainer = document.getElementById('modal-company-details');
+            detailsContainer.innerHTML = `
+                <p><strong>Address:</strong> ${company.Address}</p>
+                <p><strong>Sector:</strong> ${company.Sector}</p>
+                <p><strong>Location:</strong> ${company.SpecificLocation}</p>
+                <p><strong>Nationality:</strong> ${company.Nationality}</p>
+                <p><strong>Main Working Field(s):</strong> ${company.MainWorkingField}</p>
+                <p><strong>Type:</strong> ${company.Type}</p>
+                <p><strong>Nature:</strong> ${company.Nature}</p>
+                <p><strong>Office Type:</strong> ${company.OfficeType}</p>
+            `;
+            document.getElementById('companyModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('companyModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('companyModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function applyFilters() {
+            const locationFilter = document.getElementById('filter-location').value;
+            const fieldFilter = document.getElementById('filter-field').value;
+            const typeFilter = document.getElementById('filter-type').value;
+            const natureFilter = document.getElementById('filter-nature').value;
+            const searchTerm = document.getElementById('search-company').value.toLowerCase();
+
+            let filteredData = companyData.filter(company => {
+                const matchesLocation = (locationFilter === 'All') || 
+                                        (locationFilter === 'Noida' && company.SpecificLocation.includes('Noida') && !company.SpecificLocation.includes('Greater Noida')) ||
+                                        (locationFilter === 'Greater Noida' && company.SpecificLocation.includes('Greater Noida') && !company.SpecificLocation.includes('Noida')) ||
+                                        (company.SpecificLocation.includes(locationFilter));
+
+
+                const mainFields = company.MainWorkingField.toLowerCase();
+                let matchesField = fieldFilter === 'All';
+                if (!matchesField) {
+                    switch(fieldFilter) {
+                        case 'AI': matchesField = mainFields.includes('ai') && !mainFields.includes('agentic ai') && !mainFields.includes('generative ai'); break;
+                        case 'ML': matchesField = mainFields.includes('ml') || mainFields.includes('machine learning'); break;
+                        case 'Data Science': matchesField = mainFields.includes('data science') || mainFields.includes('analytics'); break;
+                        case 'NLP': matchesField = mainFields.includes('nlp') || mainFields.includes('nlu'); break;
+                        case 'Generative AI': matchesField = mainFields.includes('generative ai') || mainFields.includes('llm'); break;
+                        case 'Agentic AI': matchesField = mainFields.includes('agentic ai') || mainFields.includes('ai agent'); break;
+                    }
+                }
+                
+                const matchesType = (typeFilter === 'All') || (company.Type === typeFilter);
+                const matchesNature = (natureFilter === 'All') || (company.Nature.includes(natureFilter));
+                const matchesSearch = company.CompanyName.toLowerCase().includes(searchTerm);
+
+                return matchesLocation && matchesField && matchesType && matchesNature && matchesSearch;
+            });
+            populateTable(filteredData);
+        }
+
+        function sortTable(columnIndex) {
+            if (sortColumn === columnIndex) {
+                sortAsc = !sortAsc;
+            } else {
+                sortColumn = columnIndex;
+                sortAsc = true;
+            }
+
+            const tableBody = document.getElementById('company-table-body');
+            const rows = Array.from(tableBody.rows);
+
+            rows.sort((a, b) => {
+                let valA, valB;
+                if (columnIndex === 0) { // Company Name
+                    valA = a.cells[0].textContent.toLowerCase();
+                    valB = b.cells[0].textContent.toLowerCase();
+                } else if (columnIndex === 1) { // Location
+                    valA = a.cells[1].textContent.toLowerCase();
+                    valB = b.cells[1].textContent.toLowerCase();
+                } else if (columnIndex === 2) { // Main Field
+                    valA = a.cells[2].textContent.toLowerCase();
+                    valB = b.cells[2].textContent.toLowerCase();
+                } else if (columnIndex === 3) { // Type
+                    valA = a.cells[3].textContent.toLowerCase();
+                    valB = b.cells[3].textContent.toLowerCase();
+                }
+
+                if (valA < valB) return sortAsc ? -1 : 1;
+                if (valA > valB) return sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(row => tableBody.appendChild(row));
+        }
+        
+        function wrapLabels(label, maxWidth) {
+            const words = label.split(' ');
+            let lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + word).length > maxWidth) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            });
+            lines.push(currentLine.trim());
+            return lines;
+        }
+
+        function renderCharts() {
+            // Destroy existing charts if they exist to prevent conflicts
+            Object.values(charts).forEach(chart => chart.destroy());
+            charts = {};
+
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#4d4d4a' } // text-warm-neutral-800
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.7)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                    }
+                },
+                scales: {
+                    x: { 
+                        ticks: { color: '#4d4d4a', autoSkip: false, maxRotation: 45, minRotation: 45,
+                            callback: function(value, index, values) {
+                                const label = this.getLabelForValue(value);
+                                return wrapLabels(label, 10); // Wrap labels for x-axis
+                            } 
+                        }, 
+                        grid: { display: false } 
+                    },
+                    y: { 
+                        ticks: { color: '#4d4d4a' }, 
+                        grid: { color: '#cccccc' } // Lighter grid lines
+                    }
+                }
+            };
+            const pieOptions = { ...commonOptions };
+            delete pieOptions.scales; // Pie charts don't use scales typically
+
+            // Location Chart
+            const locations = {};
+            companyData.forEach(c => {
+                const loc = c.SpecificLocation.includes("Noida / Greater Noida") ? "Noida & G.Noida" : c.SpecificLocation;
+                locations[loc] = (locations[loc] || 0) + 1;
+            });
+            charts.locationChart = new Chart(document.getElementById('locationChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(locations),
+                    datasets: [{
+                        label: 'Number of Companies',
+                        data: Object.values(locations),
+                        backgroundColor: ['#60a5fa', '#93c5fd', '#38bdf8'], // Tailwind blue shades
+                        borderColor: '#3b82f6',
+                        borderWidth: 1
+                    }]
+                },
+                options: commonOptions
+            });
+
+            // Type Chart
+            const types = {};
+            companyData.forEach(c => types[c.Type] = (types[c.Type] || 0) + 1);
+            charts.typeChart = new Chart(document.getElementById('typeChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(types),
+                    datasets: [{
+                        data: Object.values(types),
+                        backgroundColor: ['#f59e0b', '#fbbf24', '#fcd34d'], // Tailwind amber shades
+                        hoverOffset: 4
+                    }]
+                },
+                options: pieOptions
+            });
+
+            // Main Working Field Chart
+            const fields = { 'AI': 0, 'ML': 0, 'Data Science': 0, 'NLP': 0, 'Generative AI': 0, 'Agentic AI': 0, 'Other': 0 };
+            companyData.forEach(c => {
+                const mainFieldText = c.MainWorkingField.toLowerCase();
+                let categorized = false;
+                if (mainFieldText.includes('generative ai') || mainFieldText.includes('llm')) { fields['Generative AI']++; categorized = true; }
+                if (mainFieldText.includes('agentic ai') || mainFieldText.includes('ai agent')) { fields['Agentic AI']++; categorized = true; }
+                if (mainFieldText.includes('nlp') || mainFieldText.includes('nlu')) { fields['NLP']++; categorized = true; }
+                if (mainFieldText.includes('data science') || mainFieldText.includes('analytics')) { fields['Data Science']++; categorized = true; }
+                if (mainFieldText.includes('ml') || mainFieldText.includes('machine learning')) { fields['ML']++; categorized = true; }
+                if (mainFieldText.includes('ai') && !mainFieldText.includes('agentic ai') && !mainFieldText.includes('generative ai')) { fields['AI']++; categorized = true; } // General AI if not more specific
+                if (!categorized) { fields['Other']++; }
+            });
+             const filteredFields = Object.fromEntries(Object.entries(fields).filter(([_, v]) => v > 0));
+            charts.fieldChart = new Chart(document.getElementById('fieldChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(filteredFields),
+                    datasets: [{
+                        label: 'Number of Companies',
+                        data: Object.values(filteredFields),
+                        backgroundColor: ['#10b981', '#34d399', '#6ee7b7'], // Tailwind emerald shades
+                        borderColor: '#059669',
+                        borderWidth: 1
+                    }]
+                },
+                options: commonOptions
+            });
+            
+            // Nationality Chart
+            const nationalities = {};
+            companyData.forEach(c => nationalities[c.Nationality] = (nationalities[c.Nationality] || 0) + 1);
+            charts.nationalityChart = new Chart(document.getElementById('nationalityChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(nationalities),
+                    datasets: [{
+                        data: Object.values(nationalities),
+                        backgroundColor: ['#8b5cf6', '#a78bfa', '#c4b5fd'], // Tailwind violet shades
+                        hoverOffset: 4
+                    }]
+                },
+                options: pieOptions
+            });
+
+            // Nature Chart
+            const natures = {};
+            companyData.forEach(c => {
+                // Normalize some nature values for better grouping in chart
+                let natureKey = c.Nature;
+                if (natureKey.includes('IT Service Company / R&D Center')) natureKey = 'IT Service / R&D';
+                else if (natureKey.includes('R&D Center / Startup Incubator')) natureKey = 'R&D / Incubator';
+                else if (natureKey.includes('Consulting') || natureKey.includes('Training')) natureKey = 'Consulting/Training';
+                else if (natureKey.includes('Product Company')) natureKey = 'Product Company';
+                else if (natureKey.includes('IT Service Company')) natureKey = 'IT Service'; // General IT Service
+                else if (natureKey.includes('R&D Center')) natureKey = 'R&D Center'; // General R&D
+
+                natures[natureKey] = (natures[natureKey] || 0) + 1;
+            });
+            const filteredNatures = Object.fromEntries(Object.entries(natures).filter(([_, v]) => v > 0));
+            charts.natureChart = new Chart(document.getElementById('natureChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(filteredNatures),
+                    datasets: [{
+                        label: 'Number of Companies',
+                        data: Object.values(filteredNatures),
+                        backgroundColor: ['#ec4899', '#f472b6', '#f9a8d4'], // Tailwind pink shades
+                        borderColor: '#db2777',
+                        borderWidth: 1
+                    }]
+                },
+                options: commonOptions
+            });
+        }
+        
+        function updateStats() {
+            document.getElementById('stat-total-companies').textContent = companyData.length;
+            let noidaCount = 0;
+            let gnoidaCount = 0;
+            let startupCount = 0;
+            let establishedCount = 0;
+
+            companyData.forEach(c => {
+                if (c.SpecificLocation.includes('Noida')) noidaCount++;
+                if (c.SpecificLocation.includes('Greater Noida')) gnoidaCount++; // Note: Wipro is in both, will be counted if "Greater Noida" is present.
+                if (c.Type === 'Startup') startupCount++;
+                if (c.Type === 'Established') establishedCount++;
+            });
+            document.getElementById('stat-noida-companies').textContent = noidaCount;
+            document.getElementById('stat-gnoida-companies').textContent = gnoidaCount;
+            document.getElementById('stat-startups').textContent = startupCount;
+            document.getElementById('stat-established').textContent = establishedCount;
+        }
+
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTable(companyData);
+            updateStats();
+            // Add event listeners for filters
+            document.getElementById('filter-location').addEventListener('change', applyFilters);
+            document.getElementById('filter-field').addEventListener('change', applyFilters);
+            document.getElementById('filter-type').addEventListener('change', applyFilters);
+            document.getElementById('filter-nature').addEventListener('change', applyFilters);
+            document.getElementById('search-company').addEventListener('input', applyFilters);
+        });
+    </script>
+</body>
+</html>
